@@ -1,36 +1,226 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PhotoShare - Photo Sharing Application
+
+A modern photo sharing web application built with Next.js 15, AWS Amplify, and TypeScript. Users can upload photos, view their gallery, and engage with others through comments.
+
+## Features
+
+- 🔐 **User Authentication** - Secure sign up/sign in with AWS Cognito
+- 📸 **Photo Upload** - Upload images to AWS S3 with title and description
+- 🖼️ **Photo Gallery** - View all your uploaded photos in a responsive grid
+- 💬 **Comments** - Add and delete comments on photos
+- 🗑️ **Photo Management** - Delete your own photos and comments
+- 📱 **Responsive Design** - Works seamlessly on desktop and mobile
+- 🎨 **Modern UI** - Built with Tailwind CSS and shadcn/ui components
+
+## Tech Stack
+
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **UI Components**: shadcn/ui
+- **Backend**: AWS Amplify Gen 2
+  - Authentication: Amazon Cognito
+  - Storage: Amazon S3
+  - Database: DynamoDB with AppSync GraphQL API
+- **Hosting**: AWS Amplify Hosting
+
+## Prerequisites
+
+- Node.js 18+ (v24.4.1 recommended)
+- npm or yarn
+- AWS Account
+- AWS Amplify CLI installed globally
 
 ## Getting Started
 
-First, run the development server:
+### 1. Clone and Install Dependencies
+
+```bash
+cd photo-sharing-app
+npm install
+```
+
+### 2. Configure AWS Amplify
+
+First, ensure you have AWS credentials configured:
+
+```bash
+aws configure
+```
+
+### 3. Deploy the Amplify Backend
+
+Deploy the authentication, database, and storage resources to AWS:
+
+```bash
+npx ampx sandbox
+```
+
+This command will:
+- Create a Cognito user pool for authentication
+- Set up DynamoDB tables with AppSync GraphQL API
+- Create S3 buckets for photo storage
+- Generate the `amplify_outputs.json` configuration file
+
+Wait for the sandbox to complete deployment. Keep the terminal open as the sandbox runs in watch mode.
+
+### 4. Run the Development Server
+
+In a new terminal window:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Usage
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Sign Up
 
-## Learn More
+1. Click "Sign Up" in the navigation
+2. Enter your email and password
+3. Check your email for the confirmation code
+4. Enter the code to verify your account
 
-To learn more about Next.js, take a look at the following resources:
+### Upload Photos
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Sign in to your account
+2. Navigate to "Gallery"
+3. Fill in the upload form with:
+   - Select an image file
+   - Add a title
+   - Optionally add a description
+4. Click "Upload Photo"
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### View and Comment
 
-## Deploy on Vercel
+1. Click on any photo to view details
+2. Add comments in the comments section
+3. Delete your own comments if needed
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Delete Photos
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- From the gallery: Click the "Delete" button on any photo card
+- From photo details: Click the "Delete" button at the top right
+
+## Project Structure
+
+```
+photo-sharing-app/
+├── app/                      # Next.js app directory
+│   ├── auth/                # Authentication pages
+│   │   ├── signin/
+│   │   └── signup/
+│   ├── gallery/             # Photo gallery page
+│   ├── photos/[id]/         # Individual photo detail page
+│   ├── layout.tsx           # Root layout with Amplify config
+│   ├── page.tsx             # Home/landing page
+│   └── globals.css          # Global styles
+├── components/              # React components
+│   ├── auth/               # Auth-related components
+│   ├── photos/             # Photo-related components
+│   └── ui/                 # shadcn/ui components
+├── amplify/                # Amplify backend configuration
+│   ├── auth/              # Auth resource definition
+│   ├── data/              # Data schema (Photos, Comments)
+│   ├── storage/           # S3 storage configuration
+│   └── backend.ts         # Main backend config
+└── lib/                   # Utility functions
+```
+
+## Deployment to Production
+
+### Deploy Backend
+
+```bash
+npx ampx pipeline-deploy --branch main --app-id <your-app-id>
+```
+
+### Deploy Frontend
+
+1. Push your code to GitHub
+2. In the AWS Amplify Console:
+   - Connect your repository
+   - Configure build settings (auto-detected)
+   - Deploy
+
+Or use the Amplify CLI:
+
+```bash
+amplify publish
+```
+
+## Environment Variables
+
+The app uses `amplify_outputs.json` which is automatically generated by Amplify. This file contains:
+- Auth configuration
+- API endpoints
+- Storage bucket names
+
+⚠️ Never commit `amplify_outputs.json` to version control in production.
+
+## Data Models
+
+### Photo
+
+- `id`: Auto-generated UUID
+- `userId`: Owner's user ID
+- `title`: Photo title
+- `description`: Optional description
+- `s3Key`: S3 object key
+- `uploadedAt`: Upload timestamp
+
+### Comment
+
+- `id`: Auto-generated UUID
+- `photoId`: Reference to photo
+- `userId`: Commenter's user ID
+- `username`: Commenter's email
+- `content`: Comment text
+- `createdAt`: Creation timestamp
+
+## Security
+
+- User authentication required for all operations
+- Photos are scoped to user identity in S3
+- Owner-based authorization for photo deletion
+- Authenticated users can read all photos and add comments
+- Users can only delete their own comments
+
+## Troubleshooting
+
+### Amplify Backend Issues
+
+```bash
+# Delete and recreate sandbox
+npx ampx sandbox delete
+npx ampx sandbox
+```
+
+### Authentication Errors
+
+- Check that `amplify_outputs.json` exists
+- Verify AWS credentials are configured
+- Ensure Cognito user pool is created
+
+### Image Upload Failures
+
+- Check S3 bucket permissions
+- Verify file size is under limits
+- Ensure file is a valid image format
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## License
+
+MIT
+
+## Support
+
+For issues and questions, please open an issue on GitHub.

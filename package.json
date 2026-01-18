@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "amplify:sandbox": "npx ampx sandbox",
+    "amplify:delete": "npx ampx sandbox delete"
   },
   "dependencies": {
     "next": "16.1.3",
@@ -18,7 +20,9 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "aws-cdk-lib": "2.235.0",
     "babel-plugin-react-compiler": "1.0.0",
+    "constructs": "10.4.5",
     "eslint": "^9",
     "eslint-config-next": "16.1.3",
     "tailwindcss": "^4",
